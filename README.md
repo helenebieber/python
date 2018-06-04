@@ -1,37 +1,74 @@
-## Welcome to GitHub Pages
+#!/usr/local/bin/python3
 
-You can use the [editor on GitHub](https://github.com/helenebieber/helenebieber.github.io/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
+'''This code is to create a website where the user can enter
+a name and remove a name from a list. The list appears 
+under the fiels. The list should remain the same when the 
+user comes back on the website later.'''
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+import cgi
+form = cgi.FieldStorage()
+add = form.getvalue('add_name', '')
+remove = form.getvalue('remove_name', '')
 
-### Markdown
+'''Create a list with names that were saved in a file 
+before or an empty list if the file doesn't exist. The 
+list will be edited when the user enter/remove a name.'''
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+try:
+  with open('list_of_name.txt', 'r') as file1:
+    list_of_name = [line.strip() for line in file1]
+except:
+    list_of_name = []
 
-```markdown
-Syntax highlighted code block
+'''If the user enter a name, this name will append to the 
+list, if the user removes a name the name will be remove 
+from the list.  '''  
 
-# Header 1
-## Header 2
-### Header 3
+if add != '':
+  list_of_name.append(add)
+for name in list_of_name:
+  if name == remove:
+     list_of_name.remove(remove)
+     break;
 
-- Bulleted
-- List
+'''This method is to list the name in the website under 
+the field. Between each name it should have a <br/>(new line)'''
 
-1. Numbered
-2. List
+def get_name(list_of_name):
+ list = ''
+ if len(list_of_name) >1:
+   for name in list_of_name[0:-1]:
+     list += name + '\n'  + '<br/>' + '\n'
+   for name in list_of_name[-1]:
+     list += name
+ elif len(list_of_name) == 1:
+    for name in list_of_name:
+      list += name
+ return list
+names = get_name(list_of_name)
 
-**Bold** and _Italic_ and `Code` text
+'''The list is written in a file so the list is saved for 
+the next time the user enters or removes a name.'''
 
-[Link](url) and ![Image](src)
-```
+with open('list_of_name.txt', 'w') as file2:
+  for name in list_of_name:
+    file2.write(name + '\n')
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/helenebieber/helenebieber.github.io/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
+print('''Content-Type: text/html
+<!DOCTYPE html>
+<html>
+    <body>
+        <form action="project5.cgi" method="POST">
+            Add a name: <input type="text" name="add_name" />
+            Remove a name : <input type="text" name="remove_name" />
+            <br/>
+            <input type="submit" />
+        </form>
+        <p>
+         <div>
+           {0}
+         </div>
+        <p/>
+    </body>
+</html>
+'''.format(names))
